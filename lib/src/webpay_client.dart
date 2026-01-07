@@ -104,7 +104,9 @@ class WebpayClient {
   /// will be automatically generated.
   ///
   /// Returns a [Map] containing the payment response parameters, or null if
-  /// the user cancels the payment.
+  /// the user cancels the payment or an error occurs.
+  ///
+  /// Throws [Exception] if navigation fails or critical errors occur.
   Future<Map<String, dynamic>?> checkout({
     required BuildContext context,
     required int amount,
@@ -114,17 +116,26 @@ class WebpayClient {
     final ref = txnRef ?? generateTxnRef();
     developer.log("Redirecting with txnRef: $ref");
 
-    final html = _buildRedirectHtml(
-      txnRef: ref,
-      amount: amount,
-      currency: currency,
-    );
-    return Navigator.push<Map<String, dynamic>>(
-      context,
-      MaterialPageRoute(
-        builder: (_) =>
-            RedirectWebViewPage(html: html, siteRedirectUrl: redirectUrl),
-      ),
-    );
+    try {
+      final html = _buildRedirectHtml(
+        txnRef: ref,
+        amount: amount,
+        currency: currency,
+      );
+
+      final result = await Navigator.push<Map<String, dynamic>>(
+        context,
+        MaterialPageRoute(
+          builder: (_) =>
+              RedirectWebViewPage(html: html, siteRedirectUrl: redirectUrl),
+        ),
+      );
+
+      developer.log("Payment completed with result: $result");
+      return result;
+    } catch (e, stackTrace) {
+      developer.log("Error during checkout", error: e, stackTrace: stackTrace);
+      rethrow;
+    }
   }
 }
