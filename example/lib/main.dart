@@ -27,11 +27,17 @@ class WebPay extends StatelessWidget {
   Widget build(BuildContext context) {
     // NOTE: These are TEST credentials for demonstration purposes only.
     // Replace with your actual Interswitch merchant credentials in production.
+    // Visit https://www.interswitchgroup.com/ to obtain your credentials.
     final webpay = WebpayClient(
       merchantCode: 'MX6072', // Test merchant code
       payItemId: '9405967', // Test pay item ID
       redirectUrl: 'https://google.com/', // Your app's callback URL
       mode: EnvironmentMode.test, // Use EnvironmentMode.live for production
+      // Optional: Set default customer information
+      custName: 'John Doe',
+      custEmail: 'john.doe@example.com',
+      custId: 'CUST12345',
+      payItemName: 'Premium Subscription',
     );
 
     return Scaffold(
@@ -45,6 +51,9 @@ class WebPay extends StatelessWidget {
             final result = await webpay.checkout(
               context: context,
               amount: 10000, // ₦100.00
+              // Optional: Override customer info for this transaction
+              // custName: 'John Doe',
+              // custEmail: 'john.doe@example.com',
             );
             log("Payment redirect result: $result");
 

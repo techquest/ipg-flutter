@@ -15,15 +15,26 @@ class WebpayClient {
   final String liveBaseUrl;
   final String testBaseUrl;
 
+  // Optional customer information
+  final String? custName;
+  final String? custEmail;
+  final String? custId;
+  final String? custMobileNo;
+  final String? payItemName;
+
   WebpayClient({
     required this.merchantCode,
     required this.payItemId,
     required this.redirectUrl,
     this.mode = EnvironmentMode.test,
-
     this.liveBaseUrl = "https://newwebpay.interswitchng.com/collections/w/pay",
     this.testBaseUrl =
         "https://newwebpay.qa.interswitchng.com/collections/w/pay",
+    this.custName,
+    this.custEmail,
+    this.custId,
+    this.custMobileNo,
+    this.payItemName,
   });
 
   String get baseUrl =>
@@ -41,6 +52,11 @@ class WebpayClient {
     required String txnRef,
     required int amount,
     required int currency,
+    String? custName,
+    String? custEmail,
+    String? custId,
+    String? custMobileNo,
+    String? payItemName,
   }) {
     developer.log("Base URL: $baseUrl");
     developer.log("Merchant Code: $merchantCode");
@@ -83,7 +99,11 @@ class WebpayClient {
             <input type="hidden" name="txn_ref" value="${esc(txnRef)}" />
             <input type="hidden" name="amount" value="${esc(amount.toString())}" />
             <input type="hidden" name="currency" value="${esc(currency.toString())}" />
-            <input type="hidden" name="display_mode" value="PAGE" />
+            ${custName != null ? '<input type="hidden" name="cust_name" value="${esc(custName)}" />' : ''}
+            ${custEmail != null ? '<input type="hidden" name="cust_email" value="${esc(custEmail)}" />' : ''}
+            ${custId != null ? '<input type="hidden" name="cust_id" value="${esc(custId)}" />' : ''}
+            ${custMobileNo != null ? '<input type="hidden" name="cust_mobile_no" value="${esc(custMobileNo)}" />' : ''}
+            ${payItemName != null ? '<input type="hidden" name="pay_item_name" value="${esc(payItemName)}" />' : ''}
             <noscript><button type="submit">Continue</button></noscript>
           </form>
         </div>
@@ -103,6 +123,13 @@ class WebpayClient {
   /// [txnRef] is optional. If not provided, a unique transaction reference
   /// will be automatically generated.
   ///
+  /// Optional customer information:
+  /// - [custName]: Name of the customer paying
+  /// - [custEmail]: Email address of the customer
+  /// - [custId]: Unique identifier of the customer on your system
+  /// - [custMobileNo]: Customer's mobile number
+  /// - [payItemName]: Name of the item being paid for
+  ///
   /// Returns a [Map] containing the payment response parameters, or null if
   /// the user cancels the payment or an error occurs.
   ///
@@ -112,6 +139,11 @@ class WebpayClient {
     required int amount,
     int currency = 566,
     String? txnRef,
+    String? custName,
+    String? custEmail,
+    String? custId,
+    String? custMobileNo,
+    String? payItemName,
   }) async {
     final ref = txnRef ?? generateTxnRef();
     developer.log("Redirecting with txnRef: $ref");
@@ -121,6 +153,11 @@ class WebpayClient {
         txnRef: ref,
         amount: amount,
         currency: currency,
+        custName: custName ?? this.custName,
+        custEmail: custEmail ?? this.custEmail,
+        custId: custId ?? this.custId,
+        custMobileNo: custMobileNo ?? this.custMobileNo,
+        payItemName: payItemName ?? this.payItemName,
       );
 
       final result = await Navigator.push<Map<String, dynamic>>(
