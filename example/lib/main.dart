@@ -25,11 +25,13 @@ class WebPay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // NOTE: These are TEST credentials for demonstration purposes only.
+    // Replace with your actual Interswitch merchant credentials in production.
     final webpay = WebpayClient(
-      merchantCode: 'MX6072',
-      payItemId: '9405967',
-      redirectUrl: 'https://google.com/',
-      mode: EnvironmentMode.test,
+      merchantCode: 'MX6072', // Test merchant code
+      payItemId: '9405967', // Test pay item ID
+      redirectUrl: 'https://google.com/', // Your app's callback URL
+      mode: EnvironmentMode.test, // Use EnvironmentMode.live for production
     );
 
     return Scaffold(
@@ -38,9 +40,11 @@ class WebPay extends StatelessWidget {
         child: ElevatedButton(
           onPressed: () async {
             log("Checkout button clicked ...");
+            // Amount is in minor currency units (kobo for NGN)
+            // 10000 kobo = ₦100.00
             final result = await webpay.checkout(
               context: context,
-              amount: 10000,
+              amount: 10000, // ₦100.00
             );
             log("Payment redirect result: $result");
 
