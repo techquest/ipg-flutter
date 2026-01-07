@@ -38,13 +38,9 @@ class WebpayClient {
 
   // Build the minimal HTML that POSTs the form immediately.
   String _buildRedirectHtml({
-    // required String merchantCode,
-    // required String payItemId,
-    // required String siteRedirectUrl,
     required String txnRef,
     required int amount,
     required int currency,
-    // required Function onComplete,
   }) {
     developer.log("Base URL: $baseUrl");
     developer.log("Merchant Code: $merchantCode");
@@ -96,8 +92,19 @@ class WebpayClient {
       ''';
   }
 
-  // Opens a full-screen in-app WebView that posts to the payment page and
-  // intercepts the redirect back to [siteRedirectUrl]. Returns the redirect data.
+  /// Opens a full-screen in-app WebView that posts to the payment page and
+  /// intercepts the redirect back to [redirectUrl]. Returns the redirect data.
+  ///
+  /// [amount] should be in minor currency units (kobo for Nigerian Naira).
+  /// For example, to charge ₦100.00, pass 10000.
+  ///
+  /// [currency] defaults to 566 (Nigerian Naira ISO 4217 code).
+  ///
+  /// [txnRef] is optional. If not provided, a unique transaction reference
+  /// will be automatically generated.
+  ///
+  /// Returns a [Map] containing the payment response parameters, or null if
+  /// the user cancels the payment.
   Future<Map<String, dynamic>?> checkout({
     required BuildContext context,
     required int amount,
@@ -108,15 +115,9 @@ class WebpayClient {
     developer.log("Redirecting with txnRef: $ref");
 
     final html = _buildRedirectHtml(
-      // merchantCode: merchantCode,
-      // payItemId: payItemId,
-      // siteRedirectUrl: redirectUrl,
       txnRef: ref,
       amount: amount,
       currency: currency,
-      // onComplete: (res) {
-      //   developer.log('Payment window closed $res');
-      // },
     );
     return Navigator.push<Map<String, dynamic>>(
       context,
