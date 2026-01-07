@@ -32,7 +32,7 @@ class WebpayClient {
   // Generate a secure, unique transaction reference
   String generateTxnRef() {
     final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final random = Random().nextInt(50);
+    final random = Random.secure().nextInt(999999);
     return 'txn_${timestamp}_$random';
   }
 
