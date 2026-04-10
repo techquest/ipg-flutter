@@ -1,16 +1,33 @@
-# example
+# ISW Webpay Example
 
-A new Flutter project.
+A demo Flutter app showing how to integrate the `isw_webpay` package for Interswitch payments.
 
-## Getting Started
+## Running the Example
 
-This project is a starting point for a Flutter application.
+1. Navigate to this directory:
+   ```bash
+   cd example
+   ```
 
-A few resources to get you started if this is your first Flutter project:
+2. Get dependencies:
+   ```bash
+   flutter pub get
+   ```
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+3. Run the app:
+   ```bash
+   flutter run
+   ```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Test Credentials
+
+The example uses Interswitch's test credentials:
+- **Merchant Code:** MX6072
+- **Pay Item ID:** 9405967
+
+These are sandbox credentials - no real money is charged.
+
+## Test Cards
+
+Use Interswitch's test cards for sandbox payments:
+[Test Cards Documentation](https://docs.interswitchgroup.com/docs/test-cards)

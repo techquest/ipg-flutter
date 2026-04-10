@@ -75,7 +75,7 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  isw_webpay:
+  ipg_flutter:
     dependency: "direct main"
     description:
       path: ".."

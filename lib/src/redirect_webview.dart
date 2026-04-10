@@ -1,18 +1,29 @@
-import 'dart:developer' as developer;
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
+/// Internal key used to indicate an error occurred in the WebView.
+const String kWebpayErrorKey = '_webpay_error';
+const String kWebpayErrorCodeKey = '_webpay_error_code';
+const String kWebpayErrorMessageKey = '_webpay_error_message';
+
+/// WebView page that handles the Interswitch redirect checkout flow.
+///
+/// Loads an HTML form that POSTs to Interswitch, then intercepts the
+/// redirect back to [siteRedirectUrl] to capture the payment response.
 class RedirectWebViewPage extends StatefulWidget {
   final String html;
   final String siteRedirectUrl;
+  final Duration? timeout;
 
   const RedirectWebViewPage({
     super.key,
     required this.html,
     required this.siteRedirectUrl,
+    this.timeout,
   });
 
   @override
@@ -21,14 +32,31 @@ class RedirectWebViewPage extends StatefulWidget {
 
 class _RedirectWebViewPageState extends State<RedirectWebViewPage> {
   late final WebViewController _controller;
+  bool _isLoading = true;
+  Timer? _timeoutTimer;
 
   @override
   void initState() {
     super.initState();
-    final redirectUri = Uri.parse(widget.siteRedirectUrl);
+    _setupWebView();
+    _setupTimeout();
+  }
 
-    developer.log("Loaded redirect URI: $redirectUri");
+  void _setupTimeout() {
+    if (widget.timeout != null) {
+      _timeoutTimer = Timer(widget.timeout!, () {
+        if (mounted) {
+          Navigator.pop(context, {
+            kWebpayErrorKey: true,
+            kWebpayErrorCodeKey: -1,
+            kWebpayErrorMessageKey: 'Payment timed out. Please try again.',
+          });
+        }
+      });
+    }
+  }
 
+  void _setupWebView() {
     late final PlatformWebViewControllerCreationParams params;
     if (WebViewPlatform.instance is WebKitWebViewPlatform) {
       params = WebKitWebViewControllerCreationParams(
@@ -39,98 +67,91 @@ class _RedirectWebViewPageState extends State<RedirectWebViewPage> {
       params = const PlatformWebViewControllerCreationParams();
     }
 
-    final WebViewController controller =
-        WebViewController.fromPlatformCreationParams(params);
+    final webViewController = WebViewController.fromPlatformCreationParams(
+      params,
+    );
 
-    controller
+    webViewController
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(
         NavigationDelegate(
-          onProgress: (int progress) {
-            developer.log('WebView is loading (progress : $progress%)');
+          onPageStarted: (_) {
+            if (mounted) {
+              setState(() => _isLoading = true);
+            }
           },
-          onPageStarted: (String url) {
-            developer.log('Page started loading: $url');
-          },
-          onPageFinished: (String url) {
-            developer.log('Page finished loading: $url');
+          onPageFinished: (_) {
+            if (mounted) {
+              setState(() => _isLoading = false);
+            }
           },
           onWebResourceError: (error) {
-            developer.log('''
-                Page resource error:
-                  code: ${error.errorCode}
-                  description: ${error.description}
-                  errorType: ${error.errorType}
-                  isForMainFrame: ${error.isForMainFrame}
-              ''');
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    'Failed to load payment page: ${error.description}',
-                  ),
-                ),
-              );
+            // Only handle main frame errors (not sub-resources like images/scripts)
+            if (error.isForMainFrame == true && mounted) {
+              _timeoutTimer?.cancel();
+              Navigator.pop(context, {
+                kWebpayErrorKey: true,
+                kWebpayErrorCodeKey: error.errorCode,
+                kWebpayErrorMessageKey: error.description,
+              });
             }
           },
           onNavigationRequest: (request) {
-            final currentUri = Uri.parse(request.url);
             if (request.url.startsWith(widget.siteRedirectUrl)) {
-              final params = Map<String, dynamic>.from(
-                currentUri.queryParameters,
-              );
-              params['returnUrl'] = request.url;
-              developer.log('Redirected to: ${request.url}');
-              developer.log('Params: $params');
+              final uri = Uri.parse(request.url);
+              final params = Map<String, dynamic>.from(uri.queryParameters);
               if (mounted) {
+                _timeoutTimer?.cancel();
                 Navigator.pop(context, params);
               }
               return NavigationDecision.prevent;
             }
-            developer.log('allowing navigation to ${request.url}');
             return NavigationDecision.navigate;
-          },
-          onHttpError: (error) {
-            developer.log(
-              'HTTP error occurred on page: status code (${error.response?.statusCode}) - ${error.response}',
-            );
-            if (mounted) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text('HTTP error: $error')));
-            }
-          },
-          onUrlChange: (UrlChange change) {
-            developer.log('url change to ${change.url}');
           },
         ),
       )
-      ..addJavaScriptChannel(
-        'Toaster',
-        onMessageReceived: (JavaScriptMessage message) {
-          developer.log('JavaScript message received: ${message.message}');
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(message.message)));
-        },
-      )
       ..loadHtmlString(widget.html);
 
-    // #docregion platform_features
-    if (controller.platform is AndroidWebViewController) {
-      AndroidWebViewController.enableDebugging(true);
-      (controller.platform as AndroidWebViewController)
+    if (webViewController.platform is AndroidWebViewController) {
+      (webViewController.platform as AndroidWebViewController)
           .setMediaPlaybackRequiresUserGesture(false);
     }
 
-    _controller = controller;
+    _controller = webViewController;
+  }
+
+  @override
+  void dispose() {
+    _timeoutTimer?.cancel();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Redirect Checkout')),
-      body: WebViewWidget(controller: _controller),
+      appBar: AppBar(title: const Text('Make Payment')),
+      body: Stack(
+        children: [
+          WebViewWidget(controller: _controller),
+          if (_isLoading)
+            Container(
+              color: Colors.white,
+              child: const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator.adaptive(),
+                    SizedBox(height: 16),
+                    Text(
+                      'Loading payment page...',
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
