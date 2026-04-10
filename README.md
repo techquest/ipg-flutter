@@ -10,7 +10,7 @@ The **Interswitch Payment Gateway (IPG) SDK** for Flutter provides a seamless wa
 
 ## Features
 
-- **Official Integration**: Follows [Interswitch Web Checkout](https://docs.interswitchgroup.com/docs/web-checkout) standards.
+- **Official Integration**: Follows [Interswitch Web Redirect](https://docs.interswitchgroup.com/docs/web-checkout#option-2---web-redirect) standards.
 - **Cross-Platform**: Full support for both **iOS** and **Android**.
 - **Pure Dart**: No native dependencies - simple integration without platform-specific setup.
 - **Multiple Payment Methods**: Card, Bank Transfer, USSD, QR Code, OPay, and Wallets.
@@ -26,6 +26,14 @@ dependencies:
   ipg_flutter: ^1.0.0
 ```
 
+OR
+
+Run this command
+
+```sh
+flutter pub add ipg_flutter
+```
+
 Then run:
 
 ```sh
@@ -33,30 +41,6 @@ flutter pub get
 ```
 
 > **Note:** This package requires `webview_flutter` which is included as a dependency. No additional setup needed.
-
----
-
-## Platform Setup
-
-### iOS
-
-Add the following to your `ios/Runner/Info.plist` to allow web content:
-
-```xml
-<key>NSAppTransportSecurity</key>
-<dict>
-    <key>NSAllowsArbitraryLoads</key>
-    <true/>
-</dict>
-```
-
-### Android
-
-Add internet permission to `android/app/src/main/AndroidManifest.xml`:
-
-```xml
-<uses-permission android:name="android.permission.INTERNET"/>
-```
 
 ---
 
@@ -69,32 +53,39 @@ import 'package:flutter/material.dart';
 import 'package:ipg_flutter/ipg_flutter.dart';
 
 class PaymentScreen extends StatelessWidget {
+  // Replace with your actual Interswitch credentials
+  // These are test credentials for demonstration
   final webpay = WebpayClient(
-    merchantCode: 'MX6072',
-    payItemId: '9405967',
-    redirectUrl: 'https://your-domain.com/callback',
+    merchantCode: '<merchant-code>',        // Test merchant code
+    payItemId: '<pay-item-id>',          // Test pay item ID
+    redirectUrl: '<redirect-url>',
     mode: EnvironmentMode.test,
   );
 
   Future<void> makePayment(BuildContext context) async {
-    final txnRef = 'txn_${DateTime.now().millisecondsSinceEpoch}';
 
     try {
       final result = await webpay.checkout(
         context: context,
-        amount: 100000, // Amount in Kobo (e.g., 1000.00 NGN)
-        txnRef: txnRef,
-        custEmail: 'customer@example.com',
+        amount: 100000, // Amount in Kobo (e.g., 100000 = ₦1,000.00)
+        txnRef: '<transaction-reference>',
+        custEmail: '<customer-email>',
       );
 
       if (result == null) {
-        print('Payment cancelled');
-      } else if (result['resp'] == '00') {
-        print('Payment successful: ${result['txnref']}');
+        // User cancelled the payment
+        return;
+      }
+
+      if (result['resp'] == '00') {
+        // Payment successful - verify on your backend
+        print('Success! Ref: ${result['txnref']}');
       } else {
-        print('Payment failed: ${result['desc']}');
+        // Payment failed
+        print('Failed: ${result['desc']}');
       }
     } on WebpayException catch (e) {
+      // Technical error (network, timeout, etc.)
       print('Error: ${e.message}');
     }
   }
@@ -103,7 +94,7 @@ class PaymentScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: () => makePayment(context),
-      child: Text('Pay Now'),
+      child: const Text('Pay Now'),
     );
   }
 }
@@ -144,50 +135,34 @@ final result = await webpay.checkout(
 );
 ```
 
-### Filtering Payment Methods
-
-Specify which payment methods to display.
-
-```dart
-final result = await webpay.checkout(
-  context: context,
-  amount: 50000,
-  txnRef: 'ORDER_123',
-  renderedMethods: ['CARD', 'USSD', 'OPAY', 'CUSTOMER_WALLET'],
-);
-```
-
----
-
 ## API Reference: WebpayClient Constructor
 
-| Parameter      | Type             | Required | Default | Description                                      |
-| :------------- | :--------------- | :------: | :------ | :----------------------------------------------- |
-| `merchantCode` | `String`         | **Yes**  | -       | Your Interswitch Merchant Code.                  |
-| `payItemId`    | `String`         | **Yes**  | -       | Your Interswitch Pay Item ID.                    |
-| `redirectUrl`  | `String`         | **Yes**  | -       | URL for capturing payment response.              |
-| `mode`         | `EnvironmentMode`| **Yes**  | `test`  | Environment (`test` or `live`).                  |
-| `custName`     | `String?`        |    No    | -       | Default customer name.                           |
-| `custEmail`    | `String?`        |    No    | -       | Default customer email.                          |
-| `custId`       | `String?`        |    No    | -       | Default customer ID in your system.              |
-| `custMobileNo` | `String?`        |    No    | -       | Default customer mobile number.                  |
-| `payItemName`  | `String?`        |    No    | -       | Default name of the item being purchased.        |
+| Parameter      | Type              | Required | Default | Description                               |
+| :------------- | :---------------- | :------: | :------ | :---------------------------------------- |
+| `merchantCode` | `String`          | **Yes**  | -       | Your Interswitch Merchant Code.           |
+| `payItemId`    | `String`          | **Yes**  | -       | Your Interswitch Pay Item ID.             |
+| `redirectUrl`  | `String`          | **Yes**  | -       | URL for capturing payment response.       |
+| `mode`         | `EnvironmentMode` | **Yes**  | `test`  | Environment (`test` or `live`).           |
+| `custName`     | `String?`         |    No    | -       | Default customer name.                    |
+| `custEmail`    | `String?`         |    No    | -       | Default customer email.                   |
+| `custId`       | `String?`         |    No    | -       | Default customer ID in your system.       |
+| `custMobileNo` | `String?`         |    No    | -       | Default customer mobile number.           |
+| `payItemName`  | `String?`         |    No    | -       | Default name of the item being purchased. |
 
 ## API Reference: checkout() Method
 
-| Parameter         | Type            | Required | Default | Description                                              |
-| :---------------- | :-------------- | :------: | :------ | :------------------------------------------------------- |
-| `context`         | `BuildContext`  | **Yes**  | -       | Flutter build context for navigation.                    |
-| `amount`          | `int`           | **Yes**  | -       | Transaction amount in **Kobo** (e.g., `100000` = ₦1000). |
-| `txnRef`          | `String`        | **Yes**  | -       | Unique transaction reference for the session.            |
-| `currency`        | `int`           |    No    | `566`   | ISO 4217 currency code (Default: 566 for NGN).           |
-| `custName`        | `String?`       |    No    | -       | Customer name (overrides default).                       |
-| `custEmail`       | `String?`       |    No    | -       | Customer email (overrides default).                      |
-| `custId`          | `String?`       |    No    | -       | Customer ID (overrides default).                         |
-| `custMobileNo`    | `String?`       |    No    | -       | Customer mobile number (overrides default).              |
-| `payItemName`     | `String?`       |    No    | -       | Item name (overrides default).                           |
-| `renderedMethods` | `List<String>?` |    No    | -       | Payment methods to display (e.g., `['CARD', 'USSD']`).   |
-| `timeout`         | `Duration?`     |    No    | -       | Maximum duration before timeout error.                   |
+| Parameter      | Type           | Required | Default | Description                                              |
+| :------------- | :------------- | :------: | :------ | :------------------------------------------------------- |
+| `context`      | `BuildContext` | **Yes**  | -       | Flutter build context for navigation.                    |
+| `amount`       | `int`          | **Yes**  | -       | Transaction amount in **Kobo** (e.g., `100000` = ₦1000). |
+| `txnRef`       | `String`       | **Yes**  | -       | Unique transaction reference for the session.            |
+| `currency`     | `int`          |    No    | `566`   | ISO 4217 currency code (Default: 566 for NGN).           |
+| `custName`     | `String?`      |    No    | -       | Customer name (overrides default).                       |
+| `custEmail`    | `String?`      |    No    | -       | Customer email (overrides default).                      |
+| `custId`       | `String?`      |    No    | -       | Customer ID (overrides default).                         |
+| `custMobileNo` | `String?`      |    No    | -       | Customer mobile number (overrides default).              |
+| `payItemName`  | `String?`      |    No    | -       | Item name (overrides default).                           |
+| `timeout`      | `Duration?`    |    No    | -       | Maximum duration before timeout error.                   |
 
 ---
 
@@ -195,21 +170,21 @@ final result = await webpay.checkout(
 
 ### Payment Response Fields
 
-| Field     | Type     | Description                          |
-| :-------- | :------- | :----------------------------------- |
-| `resp`    | `String` | Response code (`"00"` = success).    |
-| `desc`    | `String` | Human-readable response description. |
-| `txnref`  | `String` | Your transaction reference.          |
-| `amount`  | `String` | Transaction amount in Kobo.          |
+| Field    | Type     | Description                          |
+| :------- | :------- | :----------------------------------- |
+| `resp`   | `String` | Response code (`"00"` = success).    |
+| `desc`   | `String` | Human-readable response description. |
+| `txnref` | `String` | Your transaction reference.          |
+| `amount` | `String` | Transaction amount in Kobo.          |
 
 ### Result Scenarios
 
-| Scenario              | How to Detect                        | Action                              |
-| :-------------------- | :----------------------------------- | :---------------------------------- |
-| Payment successful    | `result['resp'] == '00'`             | Verify on backend, fulfill order.   |
-| Payment failed        | `result['resp'] != '00'`             | Show `result['desc']` to user.      |
-| User cancelled        | `result == null`                     | Return to previous screen.          |
-| Technical error       | Throws `WebpayException`             | Show error message, allow retry.    |
+| Scenario           | How to Detect            | Action                            |
+| :----------------- | :----------------------- | :-------------------------------- |
+| Payment successful | `result['resp'] == '00'` | Verify on backend, fulfill order. |
+| Payment failed     | `result['resp'] != '00'` | Show `result['desc']` to user.    |
+| User cancelled     | `result == null`         | Return to previous screen.        |
+| Technical error    | Throws `WebpayException` | Show error message, allow retry.  |
 
 ### Common Response Codes
 

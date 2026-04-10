@@ -8,4 +8,3 @@
 - Payment response returned as `Map<String, dynamic>` with `resp`, `desc`, `txnref`, `amount`
 - Optional customer information support (`custName`, `custEmail`, `custId`, `custMobileNo`, `payItemName`)
 - Optional timeout support for payment flow
-- Optional `renderedMethods` to filter payment methods
