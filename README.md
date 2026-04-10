@@ -245,7 +245,7 @@ See the [example](example/) directory for a complete working implementation.
 
 ## Contributing
 
-We welcome contributions! Please submit pull requests or open issues on the [GitHub repository](https://github.com/ogunkapc/ipg_flutter).
+We welcome contributions! Please submit pull requests or open issues on the [GitHub repository](https://github.com/techquest/ipg-flutter.git).
 
 ## License
 
