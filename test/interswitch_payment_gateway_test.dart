@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ipg_flutter/ipg_flutter.dart';
+import 'package:interswitch_payment_gateway/interswitch_payment_gateway.dart';
 
 void main() {
   group('WebpayClient', () {

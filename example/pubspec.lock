@@ -75,7 +75,7 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  ipg_flutter:
+  interswitch_payment_gateway:
     dependency: "direct main"
     description:
       path: ".."

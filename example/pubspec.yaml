@@ -11,7 +11,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  ipg_flutter:
+  interswitch_payment_gateway:
     path: ../
 
   cupertino_icons: ^1.0.8

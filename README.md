@@ -23,7 +23,7 @@ Add the package to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  ipg_flutter: ^1.0.0
+  interswitch_payment_gateway: ^1.0.0
 ```
 
 OR
@@ -31,7 +31,7 @@ OR
 Run this command
 
 ```sh
-flutter pub add ipg_flutter
+flutter pub add interswitch_payment_gateway
 ```
 
 Then run:
@@ -50,7 +50,7 @@ The following example demonstrates a basic payment implementation.
 
 ```dart
 import 'package:flutter/material.dart';
-import 'package:ipg_flutter/ipg_flutter.dart';
+import 'package:interswitch_payment_gateway/interswitch_payment_gateway.dart';
 
 class PaymentScreen extends StatelessWidget {
   // Replace with your actual Interswitch credentials

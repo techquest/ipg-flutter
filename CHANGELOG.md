@@ -1,6 +1,6 @@
 ## 1.0.0
 
-- Initial release of `ipg_flutter` - Interswitch Payment Gateway SDK for Flutter
+- Initial release of `interswitch_payment_gateway` - Interswitch Payment Gateway SDK for Flutter
 - `WebpayClient` for managing payment configuration
 - `checkout()` method for processing payments via WebView
 - `WebpayException` for handling technical errors (network, timeout, WebView errors)
