@@ -1,4 +1,4 @@
-## 1.0.0
+## 0.0.1
 
 - Initial release of `interswitch_payment_gateway` - Interswitch Payment Gateway SDK for Flutter
 - `WebpayClient` for managing payment configuration
