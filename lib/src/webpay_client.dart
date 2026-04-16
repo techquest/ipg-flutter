@@ -154,8 +154,6 @@ class WebpayClient {
   /// - [custMobileNo]: Customer's mobile number
   /// - [payItemName]: Name of the item being paid for
   ///
-  /// [timeout] is an optional duration after which the payment will be
-  /// cancelled and a [WebpayException] will be thrown.
   ///
   /// Returns a [Map] containing the payment response parameters:
   /// - `resp`: Response code ("00" = success)
@@ -174,7 +172,6 @@ class WebpayClient {
   ///   amount: 50000, // ₦500.00
   ///   txnRef: 'ORDER_12345',
   ///   custEmail: 'customer@example.com',
-  ///   timeout: Duration(minutes: 5),
   /// );
   ///
   /// if (result == null) {
@@ -196,7 +193,6 @@ class WebpayClient {
     String? custMobileNo,
     String? payItemName,
     List<String>? renderedMethods,
-    Duration? timeout,
   }) async {
     final html = _buildRedirectHtml(
       txnRef: txnRef,
@@ -216,7 +212,6 @@ class WebpayClient {
         builder: (_) => RedirectWebViewPage(
           html: html,
           siteRedirectUrl: redirectUrl,
-          timeout: timeout,
         ),
       ),
     );

@@ -38,12 +38,12 @@ class PaymentDemoPage extends StatefulWidget {
 class _PaymentDemoPageState extends State<PaymentDemoPage> {
   final _formKey = GlobalKey<FormState>();
 
-  // Fixed test credentials
-  final String merchantCode = 'MX6072';
-  final String payItemId = '9405967';
-  final String redirectUrl = 'https://blank.org';
+  // Editable merchant configuration controllers
+  late TextEditingController _merchantCodeController;
+  late TextEditingController _payItemIdController;
+  late TextEditingController _redirectUrlController;
 
-  // Editable fields with controllers
+  // Editable payment fields controllers
   late TextEditingController _amountController;
   late TextEditingController _currencyController;
   late TextEditingController _txnRefController;
@@ -60,6 +60,9 @@ class _PaymentDemoPageState extends State<PaymentDemoPage> {
   @override
   void initState() {
     super.initState();
+    _merchantCodeController = TextEditingController(text: 'MX6072');
+    _payItemIdController = TextEditingController(text: '9405967');
+    _redirectUrlController = TextEditingController(text: 'https://blank.org');
     _amountController = TextEditingController(text: '10000');
     _currencyController = TextEditingController(text: '566');
     _txnRefController = TextEditingController(text: _generateTxnRef());
@@ -70,6 +73,9 @@ class _PaymentDemoPageState extends State<PaymentDemoPage> {
 
   @override
   void dispose() {
+    _merchantCodeController.dispose();
+    _payItemIdController.dispose();
+    _redirectUrlController.dispose();
     _amountController.dispose();
     _currencyController.dispose();
     _txnRefController.dispose();
@@ -97,9 +103,9 @@ class _PaymentDemoPageState extends State<PaymentDemoPage> {
     setState(() => _isLoading = true);
 
     final webpay = WebpayClient(
-      merchantCode: merchantCode,
-      payItemId: payItemId,
-      redirectUrl: redirectUrl,
+      merchantCode: _merchantCodeController.text,
+      payItemId: _payItemIdController.text,
+      redirectUrl: _redirectUrlController.text,
       mode: _environmentMode,
       custName: _customerNameController.text,
       custEmail: _customerEmailController.text,
@@ -112,7 +118,6 @@ class _PaymentDemoPageState extends State<PaymentDemoPage> {
         amount: int.parse(_amountController.text),
         currency: int.parse(_currencyController.text),
         txnRef: _txnRefController.text,
-        timeout: const Duration(minutes: 5),
       );
 
       if (!mounted) return;
@@ -182,11 +187,44 @@ class _PaymentDemoPageState extends State<PaymentDemoPage> {
           children: [
             // Merchant Configuration Section
             _buildSectionHeader('Merchant Configuration'),
-            _buildReadOnlyField('MerchantCode', merchantCode),
+            _buildLabel('Merchant Code'),
+            TextFormField(
+              controller: _merchantCodeController,
+              decoration: const InputDecoration(hintText: 'Your merchant code'),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Merchant code is required';
+                }
+                return null;
+              },
+            ),
             const SizedBox(height: 12),
-            _buildReadOnlyField('Pay Item ID', payItemId),
+            _buildLabel('Pay Item ID'),
+            TextFormField(
+              controller: _payItemIdController,
+              decoration: const InputDecoration(hintText: 'Your pay item ID'),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Pay item ID is required';
+                }
+                return null;
+              },
+            ),
             const SizedBox(height: 12),
-            _buildReadOnlyField('Redirect URL', redirectUrl),
+            _buildLabel('Redirect URL'),
+            TextFormField(
+              controller: _redirectUrlController,
+              keyboardType: TextInputType.url,
+              decoration: const InputDecoration(
+                hintText: 'https://your-domain.com/callback',
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Redirect URL is required';
+                }
+                return null;
+              },
+            ),
             const SizedBox(height: 12),
 
             // Environment Mode Dropdown
@@ -386,25 +424,4 @@ class _PaymentDemoPageState extends State<PaymentDemoPage> {
     );
   }
 
-  Widget _buildReadOnlyField(String label, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildLabel(label),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-          decoration: BoxDecoration(
-            color: Colors.grey.shade100,
-            borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: Colors.grey.shade300),
-          ),
-          child: Text(
-            value,
-            style: TextStyle(fontSize: 16, color: Colors.grey.shade700),
-          ),
-        ),
-      ],
-    );
-  }
 }

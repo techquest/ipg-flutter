@@ -17,13 +17,11 @@ const String kWebpayErrorMessageKey = '_webpay_error_message';
 class RedirectWebViewPage extends StatefulWidget {
   final String html;
   final String siteRedirectUrl;
-  final Duration? timeout;
 
   const RedirectWebViewPage({
     super.key,
     required this.html,
     required this.siteRedirectUrl,
-    this.timeout,
   });
 
   @override
@@ -33,27 +31,11 @@ class RedirectWebViewPage extends StatefulWidget {
 class _RedirectWebViewPageState extends State<RedirectWebViewPage> {
   late final WebViewController _controller;
   bool _isLoading = true;
-  Timer? _timeoutTimer;
 
   @override
   void initState() {
     super.initState();
     _setupWebView();
-    _setupTimeout();
-  }
-
-  void _setupTimeout() {
-    if (widget.timeout != null) {
-      _timeoutTimer = Timer(widget.timeout!, () {
-        if (mounted) {
-          Navigator.pop(context, {
-            kWebpayErrorKey: true,
-            kWebpayErrorCodeKey: -1,
-            kWebpayErrorMessageKey: 'Payment timed out. Please try again.',
-          });
-        }
-      });
-    }
   }
 
   void _setupWebView() {
@@ -88,7 +70,6 @@ class _RedirectWebViewPageState extends State<RedirectWebViewPage> {
           onWebResourceError: (error) {
             // Only handle main frame errors (not sub-resources like images/scripts)
             if (error.isForMainFrame == true && mounted) {
-              _timeoutTimer?.cancel();
               Navigator.pop(context, {
                 kWebpayErrorKey: true,
                 kWebpayErrorCodeKey: error.errorCode,
@@ -101,7 +82,6 @@ class _RedirectWebViewPageState extends State<RedirectWebViewPage> {
               final uri = Uri.parse(request.url);
               final params = Map<String, dynamic>.from(uri.queryParameters);
               if (mounted) {
-                _timeoutTimer?.cancel();
                 Navigator.pop(context, params);
               }
               return NavigationDecision.prevent;
@@ -118,12 +98,6 @@ class _RedirectWebViewPageState extends State<RedirectWebViewPage> {
     }
 
     _controller = webViewController;
-  }
-
-  @override
-  void dispose() {
-    _timeoutTimer?.cancel();
-    super.dispose();
   }
 
   @override

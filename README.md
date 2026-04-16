@@ -15,7 +15,6 @@ The **Interswitch Payment Gateway (IPG) SDK** for Flutter provides a seamless wa
 - **Pure Dart**: No native dependencies - simple integration without platform-specific setup.
 - **Multiple Payment Methods**: Card, Bank Transfer, USSD, QR Code, OPay, and Wallets.
 - **Built-in Error Handling**: Custom `WebpayException` for network and WebView errors.
-- **Timeout Support**: Optional payment timeout to prevent indefinite loading states.
 
 ## Installation
 
@@ -85,7 +84,7 @@ class PaymentScreen extends StatelessWidget {
         print('Failed: ${result['desc']}');
       }
     } on WebpayException catch (e) {
-      // Technical error (network, timeout, etc.)
+      // Technical error (network, WebView, etc.)
       print('Error: ${e.message}');
     }
   }
@@ -122,19 +121,6 @@ final webpay = WebpayClient(
 );
 ```
 
-### With Timeout
-
-Set a maximum duration for the payment flow.
-
-```dart
-final result = await webpay.checkout(
-  context: context,
-  amount: 50000,
-  txnRef: 'ORDER_123',
-  timeout: Duration(minutes: 3), // Cancel after 3 minutes
-);
-```
-
 ## API Reference: WebpayClient Constructor
 
 | Parameter      | Type              | Required | Default | Description                               |
@@ -162,7 +148,6 @@ final result = await webpay.checkout(
 | `custId`       | `String?`      |    No    | -       | Customer ID (overrides default).                         |
 | `custMobileNo` | `String?`      |    No    | -       | Customer mobile number (overrides default).              |
 | `payItemName`  | `String?`      |    No    | -       | Item name (overrides default).                           |
-| `timeout`      | `Duration?`    |    No    | -       | Maximum duration before timeout error.                   |
 
 ---
 
