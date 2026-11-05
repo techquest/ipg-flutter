@@ -8,6 +8,7 @@ void main() {
         merchantCode: 'TEST123',
         payItemId: 'TEST456',
         redirectUrl: 'https://example.com/callback',
+        mode: EnvironmentMode.test,
       );
 
       expect(client.mode, equals(EnvironmentMode.test));
@@ -18,6 +19,7 @@ void main() {
         merchantCode: 'MX6072',
         payItemId: '9405967',
         redirectUrl: 'https://myapp.com/payment-callback',
+        mode: EnvironmentMode.test,
       );
 
       expect(client.merchantCode, equals('MX6072'));
@@ -30,6 +32,7 @@ void main() {
         merchantCode: 'TEST123',
         payItemId: 'TEST456',
         redirectUrl: 'https://example.com/callback',
+        mode: EnvironmentMode.test,
         custName: 'John Doe',
         custEmail: 'john@example.com',
         custId: 'CUST001',
@@ -49,6 +52,7 @@ void main() {
         merchantCode: 'TEST123',
         payItemId: 'TEST456',
         redirectUrl: 'https://example.com/callback',
+        mode: EnvironmentMode.test,
       );
 
       expect(client.custName, isNull);
@@ -84,14 +88,9 @@ void main() {
     });
 
     test('should format message correctly without error code', () {
-      const exception = WebpayException(
-        message: 'Unknown error',
-      );
+      const exception = WebpayException(message: 'Unknown error');
 
-      expect(
-        exception.toString(),
-        equals('WebpayException: Unknown error'),
-      );
+      expect(exception.toString(), equals('WebpayException: Unknown error'));
     });
   });
 
@@ -120,6 +119,7 @@ void main() {
         merchantCode: 'TEST123',
         payItemId: 'TEST456',
         redirectUrl: 'https://example.com/callback',
+        mode: EnvironmentMode.test,
       );
 
       expect(client.baseUrl, equals(kWebPayHostTest));

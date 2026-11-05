@@ -62,7 +62,7 @@ class WebpayClient {
     required this.merchantCode,
     required this.payItemId,
     required this.redirectUrl,
-    this.mode = EnvironmentMode.test,
+    required this.mode,
     this.custName,
     this.custEmail,
     this.custId,
