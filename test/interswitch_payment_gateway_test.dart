@@ -101,4 +101,45 @@ void main() {
       expect(EnvironmentMode.values, contains(EnvironmentMode.live));
     });
   });
+
+  group('Environment base URL', () {
+    test('test mode resolves to the sandbox host', () {
+      final client = WebpayClient(
+        merchantCode: 'TEST123',
+        payItemId: 'TEST456',
+        redirectUrl: 'https://example.com/callback',
+        mode: EnvironmentMode.test,
+      );
+
+      expect(client.baseUrl, equals(kWebPayHostTest));
+      expect(client.baseUrl, contains('sandbox'));
+    });
+
+    test('default mode resolves to the sandbox host', () {
+      final client = WebpayClient(
+        merchantCode: 'TEST123',
+        payItemId: 'TEST456',
+        redirectUrl: 'https://example.com/callback',
+      );
+
+      expect(client.baseUrl, equals(kWebPayHostTest));
+      expect(client.baseUrl, contains('sandbox'));
+    });
+
+    test('live mode resolves to the production host', () {
+      final client = WebpayClient(
+        merchantCode: 'TEST123',
+        payItemId: 'TEST456',
+        redirectUrl: 'https://example.com/callback',
+        mode: EnvironmentMode.live,
+      );
+
+      expect(client.baseUrl, equals(kWebPayHostProd));
+      expect(client.baseUrl, isNot(contains('sandbox')));
+    });
+
+    test('sandbox and production hosts differ', () {
+      expect(kWebPayHostTest, isNot(equals(kWebPayHostProd)));
+    });
+  });
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'constants.dart';
 import 'environment_mode.dart';
 import 'redirect_webview.dart';
 import 'webpay_exception.dart';
@@ -69,13 +70,18 @@ class WebpayClient {
     this.payItemName,
   });
 
-  static const String _liveBaseUrl =
-      "https://newwebpay.interswitchng.com/collections/w/pay";
-  static const String _testBaseUrl =
-      "https://newwebpay.qa.interswitchng.com/collections/w/pay";
+  static const String _liveBaseUrl = kWebPayHostProd;
+  static const String _testBaseUrl = kWebPayHostTest;
 
   String get _baseUrl =>
       mode == EnvironmentMode.test ? _testBaseUrl : _liveBaseUrl;
+
+  /// The Web Checkout endpoint this client will submit to.
+  ///
+  /// Resolves to the Interswitch sandbox host when [mode] is
+  /// [EnvironmentMode.test], and the production host otherwise. Useful for
+  /// logging and for verifying which environment an integration is hitting.
+  String get baseUrl => _baseUrl;
 
   String _buildRedirectHtml({
     required String txnRef,
@@ -163,7 +169,7 @@ class WebpayClient {
   ///
   /// Returns null if the user cancels the payment.
   ///
-  /// Throws [WebpayException] if a network error, WebView error, or timeout occurs.
+  /// Throws [WebpayException] if a network or WebView error occurs.
   ///
   /// Example:
   /// ```dart
@@ -192,7 +198,7 @@ class WebpayClient {
     String? custId,
     String? custMobileNo,
     String? payItemName,
-    List<String>? renderedMethods,
+    // List<String>? renderedMethods,
   }) async {
     final html = _buildRedirectHtml(
       txnRef: txnRef,
@@ -209,10 +215,8 @@ class WebpayClient {
     final result = await Navigator.push<Map<String, dynamic>>(
       context,
       MaterialPageRoute(
-        builder: (_) => RedirectWebViewPage(
-          html: html,
-          siteRedirectUrl: redirectUrl,
-        ),
+        builder: (_) =>
+            RedirectWebViewPage(html: html, siteRedirectUrl: redirectUrl),
       ),
     );
 
