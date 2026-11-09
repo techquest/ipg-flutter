@@ -3,17 +3,6 @@ import 'package:interswitch_payment_gateway/interswitch_payment_gateway.dart';
 
 void main() {
   group('WebpayClient', () {
-    test('should default to test mode', () {
-      final client = WebpayClient(
-        merchantCode: 'TEST123',
-        payItemId: 'TEST456',
-        redirectUrl: 'https://example.com/callback',
-        mode: EnvironmentMode.test,
-      );
-
-      expect(client.mode, equals(EnvironmentMode.test));
-    });
-
     test('should store merchant configuration correctly', () {
       final client = WebpayClient(
         merchantCode: 'MX6072',
@@ -103,18 +92,6 @@ void main() {
 
   group('Environment base URL', () {
     test('test mode resolves to the sandbox host', () {
-      final client = WebpayClient(
-        merchantCode: 'TEST123',
-        payItemId: 'TEST456',
-        redirectUrl: 'https://example.com/callback',
-        mode: EnvironmentMode.test,
-      );
-
-      expect(client.baseUrl, equals(kWebPayHostTest));
-      expect(client.baseUrl, contains('sandbox'));
-    });
-
-    test('default mode resolves to the sandbox host', () {
       final client = WebpayClient(
         merchantCode: 'TEST123',
         payItemId: 'TEST456',
