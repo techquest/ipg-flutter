@@ -151,7 +151,7 @@ final webpay = WebpayClient(
 | `merchantCode` | `String`          | **Yes**  | -       | Your Interswitch Merchant Code.           |
 | `payItemId`    | `String`          | **Yes**  | -       | Your Interswitch Pay Item ID.             |
 | `redirectUrl`  | `String`          | **Yes**  | -       | URL for capturing payment response.       |
-| `mode`         | `EnvironmentMode` | **Yes**  | `test`  | Environment (`test` or `live`).           |
+| `mode`         | `EnvironmentMode` | **Yes**  | -       | Environment (`test` or `live`).           |
 | `custName`     | `String?`         |    No    | -       | Default customer name.                    |
 | `custEmail`    | `String?`         |    No    | -       | Default customer email.                   |
 | `custId`       | `String?`         |    No    | -       | Default customer ID in your system.       |

@@ -161,7 +161,6 @@ class WebpayClient {
   /// - [custMobileNo]: Customer's mobile number
   /// - [payItemName]: Name of the item being paid for
   ///
-  ///
   /// Returns a [Map] containing the payment response parameters:
   /// - `resp`: Response code ("00" = success)
   /// - `desc`: Response description
