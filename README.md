@@ -22,7 +22,7 @@ Add the package to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  interswitch_payment_gateway: ^0.0.2
+  interswitch_payment_gateway: ^0.1.0
 ```
 
 OR
