@@ -1,6 +1,6 @@
 name: interswitch_payment_gateway
 description: "Interswitch Payment Gateway (IPG) SDK for Flutter. Accept payments via Card, Bank Transfer, USSD, and more using Interswitch's Web Checkout."
-version: 0.0.1
+version: 0.1.0
 homepage: https://github.com/techquest/ipg-flutter
 repository: https://github.com/techquest/ipg-flutter
 issue_tracker: https://github.com/techquest/ipg-flutter/issues
@@ -12,8 +12,8 @@ topics:
   - fintech
 
 environment:
-  sdk: ^3.10.1
-  flutter: ">=1.17.0"
+  sdk: ^3.13.0
+  flutter: ">=3.38.0"
 
 dependencies:
   flutter:

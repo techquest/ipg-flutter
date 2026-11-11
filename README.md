@@ -12,7 +12,7 @@ The **Interswitch Payment Gateway (IPG) SDK** for Flutter provides a seamless wa
 
 - **Official Integration**: Follows [Interswitch Web Redirect](https://docs.interswitchgroup.com/docs/web-checkout#option-2---web-redirect) standards.
 - **Cross-Platform**: Full support for both **iOS** and **Android**.
-- **Pure Dart**: No native dependencies - simple integration without platform-specific setup.
+- **Pure Dart**: No custom native code — built on the official `webview_flutter` plugins. See [Platform Setup](#platform-setup) for the one permission your Android app needs.
 - **Multiple Payment Methods**: Card, Bank Transfer, USSD, QR Code, OPay, and Wallets.
 - **Built-in Error Handling**: Custom `WebpayException` for network and WebView errors.
 
@@ -22,7 +22,7 @@ Add the package to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  interswitch_payment_gateway: ^0.0.1
+  interswitch_payment_gateway: ^0.1.0
 ```
 
 OR
@@ -39,7 +39,30 @@ Then run:
 flutter pub get
 ```
 
-> **Note:** This package requires `webview_flutter` which is included as a dependency. No additional setup needed.
+> **Note:** This package requires `webview_flutter`, which is included as a dependency. Your app still needs the platform permission shown below.
+
+---
+
+## Platform Setup
+
+The SDK is pure Dart, but it renders Interswitch's checkout in a WebView — so your app must be allowed to make network requests. A freshly created Flutter app is not, by default, on Android.
+
+### Android
+
+Add the `INTERNET` permission to `android/app/src/main/AndroidManifest.xml`, inside the `<manifest>` element:
+
+```xml
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- ...existing entries... -->
+</manifest>
+```
+
+Without this, the checkout WebView loads a blank page and no error is surfaced to your code.
+
+### iOS
+
+No additional configuration is required. The checkout is served over HTTPS.
 
 ---
 
@@ -128,7 +151,7 @@ final webpay = WebpayClient(
 | `merchantCode` | `String`          | **Yes**  | -       | Your Interswitch Merchant Code.           |
 | `payItemId`    | `String`          | **Yes**  | -       | Your Interswitch Pay Item ID.             |
 | `redirectUrl`  | `String`          | **Yes**  | -       | URL for capturing payment response.       |
-| `mode`         | `EnvironmentMode` | **Yes**  | `test`  | Environment (`test` or `live`).           |
+| `mode`         | `EnvironmentMode` | **Yes**  | -       | Environment (`test` or `live`).           |
 | `custName`     | `String?`         |    No    | -       | Default customer name.                    |
 | `custEmail`    | `String?`         |    No    | -       | Default customer email.                   |
 | `custId`       | `String?`         |    No    | -       | Default customer ID in your system.       |
@@ -171,17 +194,6 @@ final webpay = WebpayClient(
 | User cancelled     | `result == null`         | Return to previous screen.        |
 | Technical error    | Throws `WebpayException` | Show error message, allow retry.  |
 
-### Common Response Codes
-
-| Code | Description            |
-| :--- | :--------------------- |
-| `00` | Approved / Successful  |
-| `Z1` | Transaction not found  |
-| `Z5` | Transaction pending    |
-| `Z6` | Transaction processing |
-
-For a complete list, see [Response Codes](https://docs.interswitchgroup.com/docs/response-codes).
-
 ---
 
 ## Transaction Verification
@@ -190,10 +202,11 @@ For a complete list, see [Response Codes](https://docs.interswitchgroup.com/docs
 
 ---
 
-## Test Cards
+## Test Cards & Transaction Responses
 
-For testing in sandbox mode, use test cards from Interswitch:
+- For testing in sandbox mode, use test cards from Interswitch:
 [Test Cards Documentation](https://docs.interswitchgroup.com/docs/test-cards)
+- For a complete list of transaction response codes, see [Response Codes](https://docs.interswitchgroup.com/docs/payment-response-codes).
 
 ---
 
