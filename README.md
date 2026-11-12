@@ -41,6 +41,14 @@ flutter pub get
 
 > **Note:** This package requires `webview_flutter`, which is included as a dependency. Your app still needs the platform permission shown below.
 
+## Requirements
+
+- **Flutter** `3.47.0` or later
+- **Dart** `3.13.0` or later
+
+These minimums apply from `0.1.0`. On an older Flutter/Dart SDK, `flutter pub get`
+cannot resolve the package.
+
 ---
 
 ## Platform Setup
