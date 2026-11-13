@@ -1,12 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
-/// Internal key used to indicate an error occurred in the WebView.
-const String kWebpayErrorKey = '_webpay_error';
-const String kWebpayErrorCodeKey = '_webpay_error_code';
-const String kWebpayErrorMessageKey = '_webpay_error_message';
+import 'constants.dart';
 
 /// WebView page that handles the Interswitch redirect checkout flow.
 ///

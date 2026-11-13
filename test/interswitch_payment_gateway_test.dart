@@ -3,21 +3,12 @@ import 'package:interswitch_payment_gateway/interswitch_payment_gateway.dart';
 
 void main() {
   group('WebpayClient', () {
-    test('should default to test mode', () {
-      final client = WebpayClient(
-        merchantCode: 'TEST123',
-        payItemId: 'TEST456',
-        redirectUrl: 'https://example.com/callback',
-      );
-
-      expect(client.mode, equals(EnvironmentMode.test));
-    });
-
     test('should store merchant configuration correctly', () {
       final client = WebpayClient(
         merchantCode: 'MX6072',
         payItemId: '9405967',
         redirectUrl: 'https://myapp.com/payment-callback',
+        mode: EnvironmentMode.test,
       );
 
       expect(client.merchantCode, equals('MX6072'));
@@ -30,6 +21,7 @@ void main() {
         merchantCode: 'TEST123',
         payItemId: 'TEST456',
         redirectUrl: 'https://example.com/callback',
+        mode: EnvironmentMode.test,
         custName: 'John Doe',
         custEmail: 'john@example.com',
         custId: 'CUST001',
@@ -49,6 +41,7 @@ void main() {
         merchantCode: 'TEST123',
         payItemId: 'TEST456',
         redirectUrl: 'https://example.com/callback',
+        mode: EnvironmentMode.test,
       );
 
       expect(client.custName, isNull);
@@ -84,14 +77,9 @@ void main() {
     });
 
     test('should format message correctly without error code', () {
-      const exception = WebpayException(
-        message: 'Unknown error',
-      );
+      const exception = WebpayException(message: 'Unknown error');
 
-      expect(
-        exception.toString(),
-        equals('WebpayException: Unknown error'),
-      );
+      expect(exception.toString(), equals('WebpayException: Unknown error'));
     });
   });
 
@@ -99,6 +87,36 @@ void main() {
     test('should have test and live values', () {
       expect(EnvironmentMode.values, contains(EnvironmentMode.test));
       expect(EnvironmentMode.values, contains(EnvironmentMode.live));
+    });
+  });
+
+  group('Environment base URL', () {
+    test('test mode resolves to the sandbox host', () {
+      final client = WebpayClient(
+        merchantCode: 'TEST123',
+        payItemId: 'TEST456',
+        redirectUrl: 'https://example.com/callback',
+        mode: EnvironmentMode.test,
+      );
+
+      expect(client.baseUrl, equals(kWebPayHostTest));
+      expect(client.baseUrl, contains('sandbox'));
+    });
+
+    test('live mode resolves to the production host', () {
+      final client = WebpayClient(
+        merchantCode: 'TEST123',
+        payItemId: 'TEST456',
+        redirectUrl: 'https://example.com/callback',
+        mode: EnvironmentMode.live,
+      );
+
+      expect(client.baseUrl, equals(kWebPayHostProd));
+      expect(client.baseUrl, isNot(contains('sandbox')));
+    });
+
+    test('sandbox and production hosts differ', () {
+      expect(kWebPayHostTest, isNot(equals(kWebPayHostProd)));
     });
   });
 }
