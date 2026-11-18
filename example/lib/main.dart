@@ -1,7 +1,7 @@
 import 'dart:math' show Random;
 
 import 'package:example/payment_result_screen.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:interswitch_payment_gateway/interswitch_payment_gateway.dart';
 
 void main() {
